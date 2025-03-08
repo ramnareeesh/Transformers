@@ -44,6 +44,6 @@ class TransformerEncoder(Model):
     def call(self, x, mask=None):
         x = self.embedding(x)
         for enc_layer in self.enc_layers:
-            x = enc_layer(x, mask)
+            x = enc_layer(x)
         x = self.global_avg_pool(x)  # Reduce sequence to a single vector
         return self.final_dense(x)

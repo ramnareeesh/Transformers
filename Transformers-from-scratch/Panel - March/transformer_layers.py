@@ -2,7 +2,7 @@ import tensorflow as tf
 import random
 import numpy as np
 from keras.layers import LayerNormalization, Layer, Dense, ReLU, Dropout, TextVectorization, Embedding
-from keras.backend import softmax
+from tensorflow.nn import softmax
 from tensorflow import math, matmul, reshape, shape, transpose, cast, float32
 
 
@@ -89,7 +89,7 @@ class MultiHeadAttention(Layer):
         # Resulting tensor shape: (batch_size, heads, input_seq_length, -1)
         # Compute the multi-head attention output using the reshaped queries,
         # keys, and values
-        o_reshaped = self.attention(q_reshaped, k_reshaped, v_reshaped, self.d_k, mask)
+        o_reshaped = self.attention(q_reshaped, k_reshaped, v_reshaped, d_k=self.d_k, mask=mask)
         # Resulting tensor shape: (batch_size, heads, input_seq_length, -1)
         # Rearrange back the output into concatenated form
         output = self.reshape_tensor(o_reshaped, self.heads, False)

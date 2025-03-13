@@ -1,0 +1,10 @@
+streamlit
+torch
+transformers
+langchain
+langchain-community
+huggingface-hub
+PyPDF
+faiss-cpu
+python-dotenv
+dataclasses

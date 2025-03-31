@@ -62,7 +62,7 @@ class MultiHeadAttention(Layer):
         self.heads = h  # Number of attention heads to use
         self.d_k = d_k  # Dimensionality of the linearly projected queries and keys
         self.d_v = d_v  # Dimensionality of the linearly projected values
-        self.d_model = d_model  # Dimensionality of the model
+        self.d_model = d_model  # Dimensionality of the model_old
         self.W_q = Dense(d_k)  # Learned projection matrix for the queries
         self.W_k = Dense(d_k)  # Learned projection matrix for the keys
         self.W_v = Dense(d_v)  # Learned projection matrix for the values

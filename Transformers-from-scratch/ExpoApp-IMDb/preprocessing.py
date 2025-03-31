@@ -1,8 +1,9 @@
-from helper.tokenizer import tokenize, tokenize_with_bpe
+from helper.tokenizer import tokenize, tokenize_with_bpe, load_bpe_tokenizer
 from helper.dataset import load_and_train_test_split, train_val_split
 import tensorflow.data as tfdata
 def preprocess(vocab_size, max_len):
     tokenizer = tokenize(vocab_size=vocab_size)
+    # tokenizer = load_bpe_tokenizer("bpe_model_2000")
     train_texts, train_labels, test_texts, test_labels = load_and_train_test_split()
 
     train_texts_tokenized = tokenize_with_bpe(train_texts, tokenizer, max_len=max_len)
@@ -12,11 +13,11 @@ def preprocess(vocab_size, max_len):
 
     # print("Train_X shape: ", train_x.shape)
     # print("Train_Y shape: ", train_y.shape)
-    print("Sample: ", train_x[0])
-    print()
-    print("Sample: ", train_x[1])
-    print()
-    print("Sample: ", train_x[2])
+    # print("Sample: ", train_x[0])
+    # print()
+    # print("Sample: ", train_x[1])
+    # print()
+    # print("Sample: ", train_x[2])
     # print("Val_X shape: ", val_x.shape)
     # print("Val_Y shape: ", val_y.shape)
     # print("Test_X shape: ", test_x.shape)

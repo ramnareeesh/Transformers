@@ -1,5 +1,5 @@
-from tokenizer import tokenize, tokenize_with_bpe
-from dataset import load_and_train_test_split, train_val_split
+from helper.tokenizer import tokenize, tokenize_with_bpe
+from helper.dataset import load_and_train_test_split, train_val_split
 import tensorflow.data as tfdata
 def preprocess(vocab_size, max_len):
     tokenizer = tokenize(vocab_size=vocab_size)

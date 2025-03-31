@@ -1,7 +1,6 @@
 import tensorflow_datasets as tfds
 from sklearn.model_selection import train_test_split
 
-from tokenizer import tokenize, tokenize_with_bpe
 import numpy as np
 
 

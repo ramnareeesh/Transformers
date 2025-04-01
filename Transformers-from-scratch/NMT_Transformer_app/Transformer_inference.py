@@ -56,9 +56,21 @@ class Translate(Module):
         decoder_output = TensorArray(dtype=int64, size=0, dynamic_size=True)
         decoder_output = decoder_output.write(0, output_start)
 
+        all_enc_attention = None
+        all_dec_self_attention = None
+        all_dec_enc_attention = None
+
         for i in range(dec_seq_length):
             # Predict an output token
-            prediction = self.transformer(encoder_input, transpose(decoder_output.stack()), training=False)
+            prediction,enc_attention, dec_self_attention, dec_enc_attention = self.transformer(encoder_input,
+                                                                                               transpose(decoder_output.stack()), training=False)
+
+            if i == 0:
+                all_enc_attention = enc_attention
+
+            # Always update decoder attentions as they change with each new token
+            all_dec_self_attention = dec_self_attention
+            all_dec_enc_attention = dec_enc_attention
             prediction = prediction[:, -1, :]
 
             # Select the prediction with the highest score
@@ -82,13 +94,14 @@ class Translate(Module):
             key = output[i]
             output_str.append(dec_tokenizer.index_word[key])
 
-        return output_str
+        return output_str, all_enc_attention, all_dec_self_attention, all_dec_enc_attention
+
 
 # Sentence to translate
 sentence = ['cat sat on the mat']
 
 # Load the trained model's weights at the specified epoch
-inferencing_model.load_weights('weights/wghts18.ckpt')
+inferencing_model.load_weights('weights/wghts20.ckpt')
 
 # Create a new instance of the 'Translate' class
 translator = Translate(inferencing_model)

@@ -42,12 +42,13 @@ class TransformerModel(Model):
         dec_in_lookahead_mask = maximum(dec_in_padding_mask, dec_in_lookahead_mask)
 
         # Feed the input into the encoder
-        encoder_output = self.encoder(encoder_input, enc_padding_mask, training)
+        encoder_output, enc_attention_weights  = self.encoder(encoder_input, enc_padding_mask, training)
 
         # Feed the encoder output into the decoder
-        decoder_output = self.decoder(decoder_input, encoder_output, dec_in_lookahead_mask, enc_padding_mask, training)
+        decoder_output, dec_self_attention_weights,dec_enc_attention_weights = self.decoder(decoder_input, encoder_output,
+                                                                                            dec_in_lookahead_mask, enc_padding_mask, training)
 
         # Pass the decoder output through a final dense layer
         model_output = self.model_last_layer(decoder_output)
 
-        return model_output
+        return model_output, enc_attention_weights, dec_self_attention_weights, dec_enc_attention_weights

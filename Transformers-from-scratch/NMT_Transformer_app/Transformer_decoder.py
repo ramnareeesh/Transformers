@@ -48,7 +48,7 @@ class DotProductAttention(Layer):
         weights = softmax(scores)
 
         # Computing the attention by a weighted sum of the value vectors
-        return matmul(weights, values)
+        return matmul(weights, values), weights
 
 
 class MultiHeadAttention(Layer):
@@ -89,14 +89,14 @@ class MultiHeadAttention(Layer):
         # Resulting tensor shape: (batch_size, heads, input_seq_length, -1)
         # Compute the multi-head attention output using the reshaped queries,
         # keys, and values
-        o_reshaped = self.attention(q_reshaped, k_reshaped, v_reshaped, self.d_k, mask)
+        o_reshaped, attention_weights = self.attention(q_reshaped, k_reshaped, v_reshaped, self.d_k, mask)
         # Resulting tensor shape: (batch_size, heads, input_seq_length, -1)
         # Rearrange back the output into concatenated form
         output = self.reshape_tensor(o_reshaped, self.heads, False)
         # Resulting tensor shape: (batch_size, input_seq_length, d_v)
         # Apply one final linear projection to the output to generate the multi-head
         # attention. Resulting tensor shape: (batch_size, input_seq_length, d_model)
-        return self.W_o(output)
+        return self.W_o(output), attention_weights
 
 # Implementing the Add & Norm Layer
 class AddNormalization(Layer):
@@ -139,7 +139,7 @@ class DecoderLayer(Layer):
 
     def call(self, x, encoder_output, lookahead_mask, padding_mask, training):
         # Multi-head attention layer
-        multihead_output1 = self.multihead_attention1(x, x, x, lookahead_mask)
+        multihead_output1, self_attention_weights = self.multihead_attention1(x, x, x, lookahead_mask)
 
         # Expected output shape = (batch_size, sequence_length, d_model)
         # Add in a dropout layer
@@ -148,7 +148,7 @@ class DecoderLayer(Layer):
         addnorm_output1 = self.add_norm1(x, multihead_output1)
         # Expected output shape = (batch_size, sequence_length, d_model)
         # Followed by another multi-head attention layer
-        multihead_output2 = self.multihead_attention2(addnorm_output1, encoder_output, encoder_output, padding_mask)
+        multihead_output2, enc_dec_attention_weights = self.multihead_attention2(addnorm_output1, encoder_output, encoder_output, padding_mask)
 
         # Add in another dropout layer
         multihead_output2 = self.dropout2(multihead_output2, training=training)
@@ -163,8 +163,10 @@ class DecoderLayer(Layer):
         # Add in another dropout layer
         feedforward_output = self.dropout3(feedforward_output, training=training)
 
+        output = self.add_norm3(addnorm_output2, feedforward_output)
+
         # Followed by another Add & Norm layer
-        return self.add_norm3(addnorm_output2, feedforward_output)
+        return output, self_attention_weights, enc_dec_attention_weights
 
 
 class Decoder(Layer):
@@ -180,8 +182,12 @@ class Decoder(Layer):
         # Expected output shape = (number of sentences, sequence_length, d_model)
         # Add in a dropout layer
         x = self.dropout(pos_encoding_output, training=training)
+        self_attention_weights = []
+        enc_dec_attention_weights = []
         # Pass on the positional encoded values to each encoder layer
         for i, layer in enumerate(self.decoder_layer):
-            x = layer(x, encoder_output, lookahead_mask, padding_mask, training)
-        return x
+            x,self_attn,enc_dec_attn = layer(x, encoder_output, lookahead_mask, padding_mask, training)
+            self_attention_weights.append(self_attn)
+            enc_dec_attention_weights.append(enc_dec_attn)
+        return x,self_attention_weights,enc_dec_attention_weights
 

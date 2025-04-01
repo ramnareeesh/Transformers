@@ -1,2 +1,3 @@
-pip install bertviz
-pip install transformers
+```pip install bertviz```
+
+```pip install transformers```

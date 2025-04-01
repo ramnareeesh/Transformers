@@ -63,9 +63,3 @@ class Train():
         return history
 
 
-
-
-
-
-
-

@@ -44,7 +44,7 @@ if st.button("Train Model") and "return_dict" in st.session_state:
 
     train_dataset, val_dataset = st.session_state["return_dict"]["train_dataset"], st.session_state["return_dict"][
         "val_dataset"]
-    epochs = st.number_input("Enter number of epochs", value=2, min_value=1, max_value=50, step=1)
+    epochs = st.number_input("Enter number of epochs", value=20, min_value=1, max_value=50, step=1)
 
     # UI elements
     st_progress = st.progress(0)
